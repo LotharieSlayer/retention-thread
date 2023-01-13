@@ -7,9 +7,9 @@
 
 
 /*      IMPORTS      */
-const { getSetupData } = require("../utils/enmapUtils")
+const { getSetupData, setupRetention, retentionLikes, retentionLevels, retentionMissions, retentionFinalized } = require("../utils/enmapUtils")
 const { ChannelType, ThreadAutoArchiveDuration } = require("discord.js")
-const { TUTORIAL } = require("../files/tutorial")
+const tutorials = require("../files/tutorial")
 
 /* ----------------------------------------------- */
 /* FUNCTIONS                                       */
@@ -26,31 +26,85 @@ async function retention(member, client){
         type: ChannelType.PrivateThread,
         reason: `Thread de retention créé pour ${member.user.username}`
     })
-    console.log(TUTORIAL.length)
-    for (let i = 0; i < TUTORIAL.length - 2; i++) {
+    console.log(tutorials.TUTORIAL.length)
+    if(retentionFinalized.get(member.id) === true && retentionFinalized.get(member.id) != undefined)
+    for (let i = 0; i < tutorials.TUTORIAL.length - 2; i++) {
         await thread.sendTyping()        
         await new Promise(r => setTimeout(r, 6000));
-        let message = await processLine(TUTORIAL[i], member, client)
+        let message = await processLine(tutorials.TUTORIAL[i], member, thread)
         await thread.send(message)
     }
+    retentionFinalized.set(member.id, true)
 
 }
 
-async function processLine(message, member, client){
+async function processLine(message, member, thread){
     
-    let line = "";
-    line = message.replace("%member", `<@${member.id}>`)
+    let line = ""
+    if(message.search("%member") !== -1){
+        line = message.replace("%member", `<@${member.id}>`)
+    } else line = message
     
     if(message.search("%like") !== -1){
-        console.log("like")
+
+        let likeBoolVerification = false
+        while(likeBoolVerification != true){
+            if(retentionLikes.get(member.id) === true && retentionLikes.get(member.id) != undefined){
+                clearTimeout(timeout1);
+                clearTimeout(timeout2);
+                return tutorials.TUTORIAL_LIKE_SUCCESS
+                likeBoolVerification = true
+            }
+            await new Promise(r => setTimeout(r, 2000));
+        }
+        var timeout1 = await new Promise(r => setTimeout(() => {
+            thread.send(tutorials.TUTORIAL_LIKE_FAILED)
+        }, 60000));
+        var timeout2 = await new Promise(r => setTimeout(() => {
+            thread.send(tutorials.TUTORIAL_LIKE_SKIPPED)
+            clearInterval(interval);
+        }, 120000));
     }
-    if(message.search("%levels") !== -1){
-        console.log("levels")
+    if(message.search("%level") !== -1){
+
+        let levelBoolVerification = false
+        while(levelBoolVerification != true){
+            if(retentionLevels.get(member.id) === true && retentionLevels.get(member.id) != undefined){
+                clearTimeout(timeout1);
+                clearTimeout(timeout2);
+                return tutorials.TUTORIAL_LEVEL_SUCCESS
+                levelBoolVerification = true
+            }
+            await new Promise(r => setTimeout(r, 2000));
+        }
+        var timeout1 = await new Promise(r => setTimeout(() => {
+            thread.send(tutorials.TUTORIAL_LEVEL_FAILED)
+        }, 60000));
+        var timeout2 = await new Promise(r => setTimeout(() => {
+            thread.send(tutorials.TUTORIAL_LEVEL_SKIPPED)
+            clearInterval(interval);
+        }, 120000));
     }
     if(message.search("%missions") !== -1){
-        console.log("missions")
+        
+        let missionsBoolVerification = false
+        while(missionsBoolVerification != true){
+            if(retentionMissions.get(member.id) === true && retentionMissions.get(member.id) != undefined){
+                clearTimeout(timeout1);
+                clearTimeout(timeout2);
+                return tutorials.TUTORIAL_MISSIONS_SUCCESS
+                missionsBoolVerification = true
+            }
+            await new Promise(r => setTimeout(r, 2000));
+        }
+        var timeout1 = await new Promise(r => setTimeout(() => {
+            thread.send(tutorials.TUTORIAL_MISSIONS_FAILED)
+        }, 60000));
+        var timeout2 = await new Promise(r => setTimeout(() => {
+            thread.send(tutorials.TUTORIAL_MISSIONS_SKIPPED)
+            clearInterval(interval);
+        }, 120000));
     }
-
     return line
 }
 

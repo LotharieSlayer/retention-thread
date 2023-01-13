@@ -13,6 +13,15 @@ const Enmap = require("enmap");
 // SETUP
 const setupRetention = new Enmap({name: "setup_retention"});
 
+const retentionLikes = new Enmap({name: "retention_tutorial_likes"});
+const retentionLevels = new Enmap({name: "retention_tutorial_levels"});
+const retentionMissions = new Enmap({name: "retention_tutorial_missions"});
+const retentionFinalized = new Enmap({name: "retention_tutorial_finalized"});
+
+retentionLikes.clear()
+retentionLevels.clear()
+retentionMissions.clear()
+
 /* ----------------------------------------------- */
 /* FUNCTIONS                                       */
 /* ----------------------------------------------- */
@@ -59,4 +68,8 @@ async function getResultsValue(db, id){
 module.exports = {
 	getSetupData,
     setupRetention,
+    retentionLikes,
+    retentionLevels,
+    retentionMissions,
+    retentionFinalized
 }
