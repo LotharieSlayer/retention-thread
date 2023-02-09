@@ -2,14 +2,15 @@
  * @author Lothaire Guée
  * @description
  * 		The file contains the functions to gain retention from members in the discussion channel.
- *
- */
+*
+*/
 
 
 /*      IMPORTS      */
 const { getSetupData, setupRetention, retentionLikes, retentionLevels, retentionMissions, retentionFinalized } = require("../utils/enmapUtils")
 const { ChannelType, ThreadAutoArchiveDuration } = require("discord.js")
 const tutorials = require("../files/tutorial")
+const axios = require('axios');
 
 /* ----------------------------------------------- */
 /* FUNCTIONS                                       */
@@ -30,7 +31,7 @@ async function retention(member, client){
     if(retentionFinalized.get(member.id) === true && retentionFinalized.get(member.id) != undefined)
     for (let i = 0; i < tutorials.TUTORIAL.length - 2; i++) {
         await thread.sendTyping()        
-        await new Promise(r => setTimeout(r, 6000));
+        await new Promise(r => setTimeout(r, 2000)); // remettre à 6000
         let message = await processLine(tutorials.TUTORIAL[i], member, thread)
         await thread.send(message)
     }
@@ -46,24 +47,24 @@ async function processLine(message, member, thread){
     } else line = message
     
     if(message.search("%like") !== -1){
-
-        let likeBoolVerification = false
-        while(likeBoolVerification != true){
-            if(retentionLikes.get(member.id) === true && retentionLikes.get(member.id) != undefined){
-                clearTimeout(timeout1);
-                clearTimeout(timeout2);
-                return tutorials.TUTORIAL_LIKE_SUCCESS
-                likeBoolVerification = true
-            }
+        let requete = await axios.post('http://localhost:9009/rt-likes', {"memberId":member.id})
+        let cancelled = false
+        let timeout1 = new Promise(r => setTimeout(() => {
+            thread.send(tutorials.TUTORIAL_LIKE_FAILED)
+        }, 10000)); // remettre à 60000
+        let timeout2 = new Promise(r => setTimeout(() => {
+            thread.send(tutorials.TUTORIAL_LIKE_SKIPPED)
+            cancelled = true
+        }, 20000)); // remettre à 120000
+        while(requete.data.isDone != true && cancelled != true){
+            requete = await axios.post('http://localhost:9009/rt-likes', {"memberId":member.id})
+            console.log(requete.data)
+            console.log(cancelled)
             await new Promise(r => setTimeout(r, 2000));
         }
-        var timeout1 = await new Promise(r => setTimeout(() => {
-            thread.send(tutorials.TUTORIAL_LIKE_FAILED)
-        }, 60000));
-        var timeout2 = await new Promise(r => setTimeout(() => {
-            thread.send(tutorials.TUTORIAL_LIKE_SKIPPED)
-            clearInterval(interval);
-        }, 120000));
+        clearTimeout(timeout1)
+        clearTimeout(timeout2)
+        return tutorials.TUTORIAL_LIKE_SUCCESS
     }
     if(message.search("%level") !== -1){
 
