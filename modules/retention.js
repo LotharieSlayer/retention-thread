@@ -31,7 +31,7 @@ async function retention(member, client){
     if(retentionFinalized.get(member.id) === true && retentionFinalized.get(member.id) != undefined)
     for (let i = 0; i < tutorials.TUTORIAL.length - 2; i++) {
         await thread.sendTyping()        
-        await new Promise(r => setTimeout(r, 2000)); // remettre à 6000
+        await new Promise(r => setTimeout(r, 6000)); // remettre à 6000
         let message = await processLine(tutorials.TUTORIAL[i], member, thread)
         await thread.send(message)
     }
@@ -51,11 +51,11 @@ async function processLine(message, member, thread){
         let cancelled = false
         let timeout1 = new Promise(r => setTimeout(() => {
             thread.send(tutorials.TUTORIAL_LIKE_FAILED)
-        }, 10000)); // remettre à 60000
+        }, 60000)); // remettre à 60000
         let timeout2 = new Promise(r => setTimeout(() => {
             thread.send(tutorials.TUTORIAL_LIKE_SKIPPED)
             cancelled = true
-        }, 20000)); // remettre à 120000
+        }, 120000)); // remettre à 120000
         while(requete.data.isDone != true && cancelled != true){
             requete = await axios.post('http://localhost:9009/rt-likes', {"memberId":member.id})
             console.log(requete.data)
@@ -67,44 +67,44 @@ async function processLine(message, member, thread){
         return tutorials.TUTORIAL_LIKE_SUCCESS
     }
     if(message.search("%level") !== -1){
-
-        let levelBoolVerification = false
-        while(levelBoolVerification != true){
-            if(retentionLevels.get(member.id) === true && retentionLevels.get(member.id) != undefined){
-                clearTimeout(timeout1);
-                clearTimeout(timeout2);
-                return tutorials.TUTORIAL_LEVEL_SUCCESS
-                levelBoolVerification = true
-            }
+        let requete = await axios.post('http://localhost:9009/rt-levels', {"memberId":member.id})
+        let cancelled = false
+        let timeout1 = new Promise(r => setTimeout(() => {
+            thread.send(tutorials.TUTORIAL_LEVEL_FAILED)
+        }, 60000)); // remettre à 60000
+        let timeout2 = new Promise(r => setTimeout(() => {
+            thread.send(tutorials.TUTORIAL_LEVEL_SKIPPED)
+            cancelled = true
+        }, 120000)); // remettre à 120000
+        while(requete.data.isDone != true && cancelled != true){
+            requete = await axios.post('http://localhost:9009/rt-levels', {"memberId":member.id})
+            console.log(requete.data)
+            console.log(cancelled)
             await new Promise(r => setTimeout(r, 2000));
         }
-        var timeout1 = await new Promise(r => setTimeout(() => {
-            thread.send(tutorials.TUTORIAL_LEVEL_FAILED)
-        }, 60000));
-        var timeout2 = await new Promise(r => setTimeout(() => {
-            thread.send(tutorials.TUTORIAL_LEVEL_SKIPPED)
-            clearInterval(interval);
-        }, 120000));
+        clearTimeout(timeout1)
+        clearTimeout(timeout2)
+        return tutorials.TUTORIAL_LEVEL_SUCCESS
     }
     if(message.search("%missions") !== -1){
-        
-        let missionsBoolVerification = false
-        while(missionsBoolVerification != true){
-            if(retentionMissions.get(member.id) === true && retentionMissions.get(member.id) != undefined){
-                clearTimeout(timeout1);
-                clearTimeout(timeout2);
-                return tutorials.TUTORIAL_MISSIONS_SUCCESS
-                missionsBoolVerification = true
-            }
+        let requete = await axios.post('http://localhost:9009/rt-missions', {"memberId":member.id})
+        let cancelled = false
+        let timeout1 = new Promise(r => setTimeout(() => {
+            thread.send(tutorials.TUTORIAL_MISSIONS_FAILED)
+        }, 60000)); // remettre à 60000
+        let timeout2 = new Promise(r => setTimeout(() => {
+            thread.send(tutorials.TUTORIAL_MISSIONS_SKIPPED)
+            cancelled = true
+        }, 120000)); // remettre à 120000
+        while(requete.data.isDone != true && cancelled != true){
+            requete = await axios.post('http://localhost:9009/rt-missions', {"memberId":member.id})
+            console.log(requete.data)
+            console.log(cancelled)
             await new Promise(r => setTimeout(r, 2000));
         }
-        var timeout1 = await new Promise(r => setTimeout(() => {
-            thread.send(tutorials.TUTORIAL_MISSIONS_FAILED)
-        }, 60000));
-        var timeout2 = await new Promise(r => setTimeout(() => {
-            thread.send(tutorials.TUTORIAL_MISSIONS_SKIPPED)
-            clearInterval(interval);
-        }, 120000));
+        clearTimeout(timeout1)
+        clearTimeout(timeout2)
+        return tutorials.TUTORIAL_MISSIONS_SUCCESS
     }
     return line
 }
