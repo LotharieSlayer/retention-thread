@@ -25,7 +25,9 @@ async function getRetention(collection, key, retention){
             [retention]: 1
         }
     };
-    return await collection.findOne(query, options);
+    let result = await collection.findOne(query, options)
+    if(result == null) return null
+    return result[retention] ? result[retention] : null
 }
 
 module.exports = {
