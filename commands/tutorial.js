@@ -6,7 +6,7 @@
  */
 
 const { SlashCommandBuilder } = require("@discordjs/builders");
-const { upsertRetention } = require("../utils/mongoUtils")
+const { upsertRetention, getRetention } = require("../utils/mongoUtils")
 const { retention } = require("../modules/retention")
 
 /* ----------------------------------------------- */
@@ -28,8 +28,12 @@ const slashCommand = new SlashCommandBuilder()
  */
 async function execute(interaction, client) {
     const collection = client.mongo.commons.collection("retention")
-    upsertRetention(collection, member.id, "finalized", false)
-    retention(interaction.member, client)
+    if(await getRetention(collection, interaction.member.id, "inProgress") + 60000 > Date.now())
+        return interaction.reply({content: "Tu as déjà un tutoriel en cours, attends qu'il soit terminé.", ephemeral: true})
+    await upsertRetention(collection, interaction.member.id, "inProgress", Date.now())
+    await upsertRetention(collection, interaction.member.id, "finalized", false)
+    await interaction.reply({content: "Le tutoriel va commencer, tu vas recevoir un ping !", ephemeral: true})
+    await retention(interaction.member, client)
 }
 
 /* ----------------------------------------------- */
