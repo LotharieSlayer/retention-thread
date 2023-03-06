@@ -8,7 +8,7 @@
 
 /*      IMPORTS      */
 const { getSetupData, setupRetention, retentionLikes, retentionLevels, retentionMissions, retentionFinalized } = require("../utils/enmapUtils")
-const { ChannelType, ThreadAutoArchiveDuration, EmbedBuilder } = require("discord.js")
+const { ChannelType, ThreadAutoArchiveDuration, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js")
 const tutorials = require("../files/tutorial")
 const { upsertRetention, getRetention } = require("../utils/mongoUtils")
 // const axios = require('axios');
@@ -38,8 +38,8 @@ async function retention(member, client){
     })
     const changeStream = collection.watch()
     for (let i = 0; i < tutorials.TUTORIAL.length - 2; i++) {
-        let embed = await processLine(tutorials.TUTORIAL[i], member, thread, collection, changeStream)
-        await thread.send({embeds: [embed]})
+        let message = await processLine(tutorials.TUTORIAL[i], member, thread, collection, changeStream)
+        await thread.send(message)
         await new Promise(r => setTimeout(r, 1000)); // remettre à 6000
         await thread.sendTyping()
         await new Promise(r => setTimeout(r, 5000)); // remettre à 6000
@@ -48,13 +48,28 @@ async function retention(member, client){
 }
 
 async function processLine(message, member, thread, collection, changeStream){
-    
     const embed = new EmbedBuilder()
         .setColor(0x303135)
+    
+    let components = []
         
     let line = ""
 
     // ------- VARIABLES ------- //
+
+    // %skip pour stopper le tutoriel
+    if(message.search("%skip") !== -1){
+        line = message.replaceAll("%skip", "")
+        embed.setDescription(line)
+        // add button on message "Stop emoji, Stopper le tutoriel"
+        components = new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+                .setCustomId("skip_tutorial")
+                .setEmoji("🛑")
+                .setLabel("Stopper le tutoriel")
+                .setStyle(ButtonStyle.Danger)
+        );        
+    }
     
     // %member pour remplacer par le membre
     if(message.search("%member") !== -1){
@@ -156,7 +171,11 @@ async function processLine(message, member, thread, collection, changeStream){
         return embed
     }
     embed.setDescription(line)
-    return embed
+
+    if(components.length === 0)
+        return {embeds:[embed]}
+    else
+        return {embeds:[embed], components:[components]}
 }
     
 module.exports = {

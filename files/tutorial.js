@@ -1,5 +1,5 @@
 exports.TUTORIAL = [
-    `Bienvenue %member, vous voilà désormais sur :frMeme1:frMeme2: FRANCE MEMES !`,
+    `Bienvenue %member, vous voilà désormais sur :frMeme1:frMeme2: FRANCE MEMES ! %skip`,
 
     // Afficher un URL vidéo de présentation
 
