@@ -53,10 +53,15 @@ async function processLine(message, member, thread, collection, changeStream){
         .setColor(0x303135)
         
     let line = ""
+
+    // ------- VARIABLES ------- //
+    
+    // %member pour remplacer par le membre
     if(message.search("%member") !== -1){
         line = message.replace("%member", `<@${member.id}>`)
     } else line = message
     
+    // %like pour remplacer par l'intéraction avec un like
     if(message.search("%like") !== -1){
         // Update du coté de FRANCE BOT
         // await upsertRetention(collection, member.id, "likes", true)
@@ -88,6 +93,8 @@ async function processLine(message, member, thread, collection, changeStream){
         embed.setDescription(tutorials.TUTORIAL_LIKE_SUCCESS)
         return embed
     }
+
+    // %level pour remplacer par l'intéraction avec le /level
     if(message.search("%level") !== -1){
         // Update du coté de FRANCE BOT
         // await upsertRetention(collection, member.id, "levels", true)
@@ -117,6 +124,8 @@ async function processLine(message, member, thread, collection, changeStream){
         embed.setDescription(tutorials.TUTORIAL_LEVEL_SUCCESS)
         return embed
     }
+
+    // %missions pour remplacer par l'intéraction avec le /missions
     if(message.search("%missions") !== -1){
         // Update du coté de FRANCE BOT
         // await upsertRetention(collection, member.id, "missions", true)
