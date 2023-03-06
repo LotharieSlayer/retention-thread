@@ -34,6 +34,10 @@ async function retention(member, client){
         reason: `Thread de retention créé pour ${member.user.username}`
     })
     console.log(tutorials.TUTORIAL.length)
+    thread.send("<@"+member.id+">").then(async (msg) => {
+        await new Promise(r => setTimeout(r, 6000))
+        await msg.delete()
+    })
     const changeStream = collection.watch()
     for (let i = 0; i < tutorials.TUTORIAL.length - 2; i++) {
         await thread.sendTyping()
