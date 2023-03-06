@@ -34,16 +34,17 @@ async function retention(member, client){
         reason: `Thread de retention créé pour ${member.user.username}`
     })
     console.log(tutorials.TUTORIAL.length)
-    thread.send("<@"+member.id+">").then(async (msg) => {
-        await new Promise(r => setTimeout(r, 6000))
+    thread.send("<@"+member.id+">, attends un instant ton tutoriel va commencer.").then(async (msg) => {
+        await new Promise(r => setTimeout(r, 1000))
         await msg.delete()
     })
     const changeStream = collection.watch()
     for (let i = 0; i < tutorials.TUTORIAL.length - 2; i++) {
-        await thread.sendTyping()
-        await new Promise(r => setTimeout(r, 6000)); // remettre à 6000
         let embed = await processLine(tutorials.TUTORIAL[i], member, thread, collection, changeStream)
         await thread.send({embeds: [embed]})
+        await new Promise(r => setTimeout(r, 1000)); // remettre à 6000
+        await thread.sendTyping()
+        await new Promise(r => setTimeout(r, 5000)); // remettre à 6000
     }
     upsertRetention(collection, member.id, "finalized", true)
 }
