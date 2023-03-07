@@ -37,6 +37,14 @@ async function retention(member, client){
         await msg.delete()
     })
     const changeStream = collection.watch()
+    
+    changeStream.on('change', (next) => {
+        if(next._id === member.id && 
+            next.updateDescription.updatedFields.finalized){
+                isDone = true
+        }
+    })
+
     for (let i = 0; i < tutorials.TUTORIAL.length - 2; i++) {
         let message = await processLine(tutorials.TUTORIAL[i], member, thread, collection, changeStream)
         await thread.send(message)
@@ -59,7 +67,7 @@ async function processLine(message, member, thread, collection, changeStream){
 
     // %skip pour stopper le tutoriel
     if(message.search("%skip") !== -1){
-        line = message.replaceAll("%skip", "")
+        line = message.replace("%skip", "")
         embed.setDescription(line)
         // add button on message "Stop emoji, Stopper le tutoriel"
         components = new ActionRowBuilder().addComponents(
@@ -106,7 +114,6 @@ async function processLine(message, member, thread, collection, changeStream){
         clearTimeout(timeout2)
         if(!cancelled)
         embed.setDescription(tutorials.TUTORIAL_LIKE_SUCCESS)
-        return embed
     }
 
     // %level pour remplacer par l'intéraction avec le /level
@@ -137,7 +144,6 @@ async function processLine(message, member, thread, collection, changeStream){
         clearTimeout(timeout2)
         if(!cancelled)
         embed.setDescription(tutorials.TUTORIAL_LEVEL_SUCCESS)
-        return embed
     }
 
     // %missions pour remplacer par l'intéraction avec le /missions
@@ -168,7 +174,6 @@ async function processLine(message, member, thread, collection, changeStream){
         clearTimeout(timeout2)
         if(!cancelled)
         embed.setDescription(tutorials.TUTORIAL_MISSIONS_SUCCESS)
-        return embed
     }
     embed.setDescription(line)
 
