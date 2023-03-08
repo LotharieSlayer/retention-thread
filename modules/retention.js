@@ -11,7 +11,7 @@ const { getSetupData, setupRetention, retentionLikes, retentionLevels, retention
 const { ChannelType, ThreadAutoArchiveDuration, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js")
 const tutorials = require("../files/tutorial")
 const { upsertRetention, getRetention } = require("../utils/mongoUtils")
-// const axios = require('axios');
+let isDone;
 
 /* ----------------------------------------------- */
 /* FUNCTIONS                                       */
@@ -39,7 +39,7 @@ async function retention(member, client){
     const changeStream = collection.watch()
     
     changeStream.on('change', (next) => {
-        if(next._id === member.id && 
+        if(next.documentKey._id === member.id && 
             next.updateDescription.updatedFields.finalized){
                 isDone = true
         }
@@ -51,6 +51,7 @@ async function retention(member, client){
         await new Promise(r => setTimeout(r, 1000)); // remettre à 6000
         await thread.sendTyping()
         await new Promise(r => setTimeout(r, 5000)); // remettre à 6000
+        if(isDone === true) break
     }
     await upsertRetention(collection, member.id, "finalized", true)
 }
@@ -58,16 +59,16 @@ async function retention(member, client){
 async function processLine(message, member, thread, collection, changeStream){
     const embed = new EmbedBuilder()
         .setColor(0x303135)
-    
+
     let components = []
         
-    let line = ""
+    let line = message
 
     // ------- VARIABLES ------- //
 
     // %skip pour stopper le tutoriel
-    if(message.search("%skip") !== -1){
-        line = message.replace("%skip", "")
+    if(line.search("%skip") !== -1){
+        line = line.replace("%skip", "")
         embed.setDescription(line)
         // add button on message "Stop emoji, Stopper le tutoriel"
         components = new ActionRowBuilder().addComponents(
@@ -80,12 +81,12 @@ async function processLine(message, member, thread, collection, changeStream){
     }
     
     // %member pour remplacer par le membre
-    if(message.search("%member") !== -1){
-        line = message.replace("%member", `<@${member.id}>`)
-    } else line = message
+    if(line.search("%member") !== -1){
+        line = line.replace("%member", `<@${member.id}>`)
+    }
     
     // %like pour remplacer par l'intéraction avec un like
-    if(message.search("%like") !== -1){
+    if(line.search("%like") !== -1){
         // Update du coté de FRANCE BOT
         // await upsertRetention(collection, member.id, "likes", true)
         let isDone = (await getRetention(collection, member.id, "likes"))
@@ -117,7 +118,7 @@ async function processLine(message, member, thread, collection, changeStream){
     }
 
     // %level pour remplacer par l'intéraction avec le /level
-    if(message.search("%level") !== -1){
+    if(line.search("%level") !== -1){
         // Update du coté de FRANCE BOT
         // await upsertRetention(collection, member.id, "levels", true)
         let isDone = (await getRetention(collection, member.id, "levels"))
@@ -147,7 +148,7 @@ async function processLine(message, member, thread, collection, changeStream){
     }
 
     // %missions pour remplacer par l'intéraction avec le /missions
-    if(message.search("%missions") !== -1){
+    if(line.search("%missions") !== -1){
         // Update du coté de FRANCE BOT
         // await upsertRetention(collection, member.id, "missions", true)
         let isDone = (await getRetention(collection, member.id, "missions"))

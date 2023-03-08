@@ -1,9 +1,9 @@
 exports.TUTORIAL = [
-    `Bienvenue %member, vous voilà désormais sur :frMeme1:frMeme2: FRANCE MEMES ! %skip`,
+    `Bienvenue %member, vous voilà désormais sur :frMeme1:frMeme2: FRANCE MEMES !`,
 
     // Afficher un URL vidéo de présentation
 
-    `Je serai votre guide pour toute la durée d'apprentissage du serveur. Si tu penses ne pas avoir besoin de tutoriel, tu peux simplement cliquer sur ce bouton « Skip » qui te termina le tutoriel. Tu peux le redémarrer n'importe quand en utilisant </tutoriel:0> !`,
+    `Je serai votre guide pour toute la durée d'apprentissage du serveur. Si tu penses ne pas avoir besoin de tutoriel, tu peux simplement cliquer sur ce bouton « Skip » qui te termina le tutoriel. Tu peux le redémarrer n'importe quand en utilisant </tutoriel:0> ! %skip`,
 
     // Afficher TUTORIAL_SKIPPED
 
