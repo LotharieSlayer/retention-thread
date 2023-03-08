@@ -28,9 +28,9 @@ const slashCommand = new SlashCommandBuilder()
  */
 async function execute(interaction, client) {
     const collection = client.mongo.commons.collection("retention")
-    if(await getRetention(collection, interaction.member.id, "inProgress") + 60000 > Date.now())
+    if(await getRetention(collection, interaction.member.id, "datetime") + 60000 > Date.now())
         return interaction.reply({content: "Tu as déjà un tutoriel en cours, attends qu'il soit terminé.", ephemeral: true})
-    await upsertRetention(collection, interaction.member.id, "inProgress", Date.now())
+    await upsertRetention(collection, interaction.member.id, "datetime", Date.now())
     await upsertRetention(collection, interaction.member.id, "finalized", false)
     await interaction.reply({content: "Le tutoriel va commencer, tu vas recevoir un ping !", ephemeral: true})
     await retention(interaction.member, client)

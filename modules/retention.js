@@ -7,7 +7,7 @@
 
 
 /*      IMPORTS      */
-const { getSetupData, setupRetention, retentionLikes, retentionLevels, retentionMissions, retentionFinalized } = require("../utils/enmapUtils")
+const { getSetupData } = require("../utils/enmapUtils")
 const { ChannelType, ThreadAutoArchiveDuration, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js")
 const tutorials = require("../files/tutorial")
 const { upsertRetention, getRetention } = require("../utils/mongoUtils")
@@ -22,8 +22,11 @@ async function retention(member, client){
     if(RETENTION_ID == undefined || RETENTION_ID == null) return;
     const collection = client.mongo.commons.collection("retention")
 
+    // Est ce déjà fait ?
     let isAlreadyDone = await getRetention(collection, member.id, "finalized")
     if(isAlreadyDone === true) return;
+
+    // Membre entrant, on crée le thread
     const retentionChannel = await client.channels.fetch(RETENTION_ID)
     const thread = await retentionChannel.threads.create({
         name: `Bienvenue ${member.user.username}, clique ici !`,
@@ -36,7 +39,12 @@ async function retention(member, client){
         await new Promise(r => setTimeout(r, 1000))
         await msg.delete()
     })
-    const changeStream = collection.watch()
+
+    await upsertRetention(collection, thread.id, "thread", true)
+
+    // Pipeline pour le changement de valeur de finalized
+    const pipeline = [ { $match: { finalized: true } } ];
+    const changeStream = collection.watch(pipeline)
     
     changeStream.on('change', (next) => {
         if(next.documentKey._id === member.id && 
@@ -45,12 +53,13 @@ async function retention(member, client){
         }
     })
 
+    // Envoi des messages
     for (let i = 0; i < tutorials.TUTORIAL.length - 2; i++) {
         let message = await processLine(tutorials.TUTORIAL[i], member, thread, collection, changeStream)
         await thread.send(message)
-        await new Promise(r => setTimeout(r, 1000)); // remettre à 6000
+        await new Promise(r => setTimeout(r, 1000));
         await thread.sendTyping()
-        await new Promise(r => setTimeout(r, 5000)); // remettre à 6000
+        await new Promise(r => setTimeout(r, 5000));
         if(isDone === true) break
     }
     await upsertRetention(collection, member.id, "finalized", true)
