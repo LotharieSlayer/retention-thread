@@ -10,7 +10,7 @@
 const { getSetupData } = require("../utils/enmapUtils")
 const { ChannelType, ThreadAutoArchiveDuration, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js")
 const tutorials = require("../files/tutorial")
-const { upsertRetention, getRetention } = require("../utils/mongoUtils")
+const { upsertRetention, getRetention, getMembersToNotify } = require("../utils/mongoUtils")
 let isDone;
 
 /* ----------------------------------------------- */
@@ -40,7 +40,9 @@ async function retention(member, client){
         await msg.delete()
     })
 
-    await upsertRetention(collection, thread.id, "thread", true)
+    await upsertRetention(collection, member.id, "thread", thread.id)
+    await upsertRetention(collection, member.id, "datetime", Date.now())
+    await upsertRetention(collection, member.id, "closed", false)
 
     // Pipeline pour le changement de valeur de finalized
     const pipeline = [ { $match: { finalized: true } } ];
@@ -185,14 +187,34 @@ async function processLine(message, member, thread, collection, changeStream){
         if(!cancelled)
         embed.setDescription(tutorials.TUTORIAL_MISSIONS_SUCCESS)
     }
-    embed.setDescription(line)
+
+    if(line.search("%") === -1){
+        embed.setDescription(line)
+    }
 
     if(components.length === 0)
         return {embeds:[embed]}
     else
         return {embeds:[embed], components:[components]}
 }
+
+async function verifyEachWeek(client){
+    setInterval( async () => {
+        const collection = await client.mongo.commons.collection("retention")
+        const members = await getMembersToNotify(collection)
+        members.forEach( async (member) => {
+            // On récupère le channel de retention
+            const channel = await client.channels.fetch(member.thread)
+            // On envoie le message
+            channel.send("<@"+member._id+"> " + tutorials.TUTORIAL_WEEKLY_REMINDER)
+        })
+        const day = 86400000
+        const week = 604800000
+        collection.updateMany({$and: [ {datetime: { $lt: Date.now() - week - day }}, {closed: false} ]}, {$set: {closed: true}})
+    }, 1000);
+}
     
 module.exports = {
-    retention
+    retention,
+    verifyEachWeek
 }

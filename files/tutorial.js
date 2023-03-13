@@ -70,3 +70,5 @@ exports.TUTORIAL_MISSIONS_FAILED = `euuuh fais-le ici hein ! je veux bien que tu
 exports.TUTORIAL_MISSIONS_SKIPPED = `Ok bon c'est pas grave on passe à la suite tu réessayeras plus tard avec </tutoriel:1> !` // Message au bout de 30 secondes
 
 exports.TUTORIAL_IDLE = `bébouuu ?? tu es où ? :( \nréponds stp... 🥺`
+
+exports.TUTORIAL_WEEKLY_REMINDER = `aaaaaaaaaaa`

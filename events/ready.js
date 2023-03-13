@@ -4,7 +4,7 @@
  *		Handler for the 'ready' event.
  */
 
-const { getMembersToNotify } = require("../utils/mongoUtils");
+const { verifyEachWeek } = require("../modules/retention");
 
  /* ----------------------------------------------- */
  /* FUNCTIONS                                       */
@@ -14,21 +14,15 @@ const { getMembersToNotify } = require("../utils/mongoUtils");
   * @param {Client} client The client that emitted the event.
  */
 function execute( client ) {
-    setInterval( async () => {
-        const collection = client.mongo.commons.collection("retention")
-        console.log( await getMembersToNotify(collection))
-            // fetch channel dans l'objet, on envoie le message
-        // met closed à true dans mongo pour tous les gens d'un coup afin de ne pas les notifier à nouveau
-        collection.updateMany({}, {$set: {closed: true}})
-    }, 1000);
+    verifyEachWeek(client)
 }
  
  
  /* ----------------------------------------------- */
  /* MODULE EXPORTS                                  */
  /* ----------------------------------------------- */
- module.exports = {
-     name: "ready",
-     once : true,
-     execute
- }
+module.exports = {
+    name: "ready",
+    once : true,
+    execute
+}

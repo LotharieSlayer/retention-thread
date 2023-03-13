@@ -52,11 +52,12 @@ async function getMembersToNotify(collection){
     const day = 86400000
     const week = 604800000
 
-    const query = { datetime: { $gt: Date.now() - week - day }, closed: false };
+    const query = { datetime: { $lt: Date.now() - week - day }, closed: false };
     const options = {
         projection: {
             _id: 1,
-            thread: 1
+            thread: 1,
+            closed: 1,
         }
     };
     return await collection.find(query, options).toArray();
