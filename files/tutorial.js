@@ -51,23 +51,39 @@ exports.TUTORIAL = [
 
 ]
 
+exports.TUTORIAL_SUMMARY = [
+    "TUTORIAL_LIKE",
+    "TUTORIAL_LEVEL",
+    "TUTORIAL_MISSIONS"
+]
+
+exports.TUTORIAL_LIKE = {
+    TITLE: "like",
+    COLLECTION_VALUE_NAME: "likes",
+    TUTORIAL_SUCCESS: `Trop fort, t'es vriament trop fort c'est trop fort !`,
+    TUTORIAL_FAILED: `Pour continuer le tutoriel il faudra mettre ce petit like !`, // Message au bout de 30 secondes
+    TUTORIAL_SKIPPED: `Ok bon c'est pas grave on passe à la suite tu réessayeras plus tard avec </tutoriel:1> !` // Message au bout de 30 secondes
+}
+
+exports.TUTORIAL_LEVEL = {
+    TITLE: "level",
+    COLLECTION_VALUE_NAME: "levels",
+    TUTORIAL_SUCCESS: `Wow super, tu te débrouilles super bien, c'est très impressionnant ! 😳`,
+    TUTORIAL_FAILED: `Mmh réessaye /level encore une fois ! (fais-le bien ici hein)`, // Message au bout de 30 secondes
+    TUTORIAL_SKIPPED: `Ok bon c'est pas grave on passe à la suite tu réessayeras plus tard avec </tutoriel:1> aaaaa !` // Message au bout de 30 secondes
+}
+
+exports.TUTORIAL_MISSIONS = {
+    TITLE: "missions",
+    COLLECTION_VALUE_NAME: "missions",
+    TUTORIAL_SUCCESS: `:emoji gasm: **WAAAAAAAAAAA, t'es trop trop fort(e)!!!!!!!!!!!!!!!!!!!!!!** :emoji qui crie animé de fm:`, // Message au bout de 30 secondes
+    TUTORIAL_FAILED: `euuuh fais-le ici hein ! je veux bien que tu réessaye car je n'ai rien eu… >w< essaye /missions !`, // Message au bout de 30 secondes
+    TUTORIAL_SKIPPED: `Ok bon c'est pas grave on passe à la suite tu réessayeras plus tard avec </tutoriel:1> !` // Message au bout de 30 secondes
+}
 
 //::Si skip alors send « 
 // Sinon, ::stop le tuto
 exports.TUTORIAL_SKIPPED = `Ok je vois que tu n'a pas de difficultés, profites bien du serveur !`
-
-// SUCCESS OR FAILED VARIABLES
-exports.TUTORIAL_LIKE_SUCCESS = `Trop fort, t'es vriament trop fort c'est trop fort !`
-exports.TUTORIAL_LIKE_FAILED = `Pour continuer le tutoriel il faudra mettre ce petit like !` // Message au bout de 30 secondes
-exports.TUTORIAL_LIKE_SKIPPED = `Ok bon c'est pas grave on passe à la suite tu réessayeras plus tard avec </tutoriel:1> !` // Message au bout de 30 secondes
-
-exports.TUTORIAL_LEVEL_SUCCESS = `Wow super, tu te débrouilles super bien, c'est très impressionnant ! 😳`
-exports.TUTORIAL_LEVEL_FAILED = `Mmh réessaye /level encore une fois ! (fais-le bien ici hein)` // Message au bout de 30 secondes
-exports.TUTORIAL_LEVEL_SKIPPED = `Ok bon c'est pas grave on passe à la suite tu réessayeras plus tard avec </tutoriel:1> aaaaa !` // Message au bout de 30 secondes
-
-exports.TUTORIAL_MISSIONS_SUCCESS = `:emoji gasm: **WAAAAAAAAAAA, t'es trop trop fort(e)!!!!!!!!!!!!!!!!!!!!!!** :emoji qui crie animé de fm:` // Message au bout de 30 secondes
-exports.TUTORIAL_MISSIONS_FAILED = `euuuh fais-le ici hein ! je veux bien que tu réessaye car je n'ai rien eu… >w< essaye /missions !` // Message au bout de 30 secondes
-exports.TUTORIAL_MISSIONS_SKIPPED = `Ok bon c'est pas grave on passe à la suite tu réessayeras plus tard avec </tutoriel:1> !` // Message au bout de 30 secondes
 
 exports.TUTORIAL_IDLE = `bébouuu ?? tu es où ? :( \nréponds stp... 🥺`
 

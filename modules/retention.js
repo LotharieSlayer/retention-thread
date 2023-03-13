@@ -40,6 +40,7 @@ async function retention(member, client){
         await msg.delete()
     })
 
+    // Set MongoDB
     await upsertRetention(collection, member.id, "thread", thread.id)
     await upsertRetention(collection, member.id, "datetime", Date.now())
     await upsertRetention(collection, member.id, "closed", false)
@@ -49,6 +50,7 @@ async function retention(member, client){
     const changeStream = collection.watch(pipeline)
     
     changeStream.on('change', (next) => {
+        console.log(next)
         if(next.documentKey._id === member.id && 
             next.updateDescription.updatedFields.finalized){
                 isDone = true
@@ -96,96 +98,8 @@ async function processLine(message, member, thread, collection, changeStream){
         line = line.replace("%member", `<@${member.id}>`)
     }
     
-    // %like pour remplacer par l'intéraction avec un like
-    if(line.search("%like") !== -1){
-        // Update du coté de FRANCE BOT
-        // await upsertRetention(collection, member.id, "likes", true)
-        let isDone = (await getRetention(collection, member.id, "likes"))
-        console.log(isDone)
-        let cancelled = false
-        changeStream.once('change', (next) => {
-            if(next._id === member.id && 
-                next.updateDescription.updatedFields.likes){
-                    isDone = true
-            }
-        })
-        let timeout1 = setTimeout(() => {
-            embed.setDescription(tutorials.TUTORIAL_LIKE_FAILED)
-            thread.send({embeds:[embed]})
-        }, 60000); // remettre à 60000
-        let timeout2 = setTimeout(() => {
-            embed.setDescription(tutorials.TUTORIAL_LIKE_SKIPPED)
-            cancelled = true
-        }, 120000); // remettre à 120000
-        
-        while(isDone != true && cancelled != true){
-            await new Promise(r => setTimeout(r, 2000));
-        }
-        
-        clearTimeout(timeout1)
-        clearTimeout(timeout2)
-        if(!cancelled)
-        embed.setDescription(tutorials.TUTORIAL_LIKE_SUCCESS)
-    }
-
-    // %level pour remplacer par l'intéraction avec le /level
-    if(line.search("%level") !== -1){
-        // Update du coté de FRANCE BOT
-        // await upsertRetention(collection, member.id, "levels", true)
-        let isDone = (await getRetention(collection, member.id, "levels"))
-        console.log(isDone)
-        let cancelled = false
-        changeStream.once('change', (next) => {
-            if(next._id === member.id && 
-                next.updateDescription.updatedFields.levels){
-                    isDone = true
-                }
-            })
-        let timeout1 = setTimeout(() => {
-            embed.setDescription(tutorials.TUTORIAL_LEVEL_FAILED)
-            thread.send({embeds:[embed]})
-        }, 60000); // remettre à 60000
-        let timeout2 = setTimeout(() => {
-            embed.setDescription(tutorials.TUTORIAL_LEVEL_SKIPPED)
-            cancelled = true
-        }, 120000); // remettre à 120000
-        while(isDone != true && cancelled != true){
-            await new Promise(r => setTimeout(r, 2000));
-        }
-        clearTimeout(timeout1)
-        clearTimeout(timeout2)
-        if(!cancelled)
-        embed.setDescription(tutorials.TUTORIAL_LEVEL_SUCCESS)
-    }
-
-    // %missions pour remplacer par l'intéraction avec le /missions
-    if(line.search("%missions") !== -1){
-        // Update du coté de FRANCE BOT
-        // await upsertRetention(collection, member.id, "missions", true)
-        let isDone = (await getRetention(collection, member.id, "missions"))
-        console.log(isDone)
-        let cancelled = false
-        changeStream.once('change', (next) => {
-            if(next._id === member.id && 
-                next.updateDescription.updatedFields.missions){
-                    isDone = true
-                }
-            })
-        let timeout1 = setTimeout(() => {
-            embed.setDescription(tutorials.TUTORIAL_MISSIONS_FAILED)
-            thread.send({embeds:[embed]})
-        }, 60000); // remettre à 60000
-        let timeout2 = setTimeout(() => {
-            embed.setDescription(tutorials.TUTORIAL_MISSIONS_SKIPPED)
-            cancelled = true
-        }, 120000); // remettre à 120000
-        while(isDone != true && cancelled != true){
-            await new Promise(r => setTimeout(r, 2000));
-        }
-        clearTimeout(timeout1)
-        clearTimeout(timeout2)
-        if(!cancelled)
-        embed.setDescription(tutorials.TUTORIAL_MISSIONS_SUCCESS)
+    for (let i = 0; i < tutorials.TUTORIAL_SUMMARY.length; i++) {
+        await processInteraction(line, collection, member, thread, changeStream, embed, tutorials.TUTORIAL_SUMMARY[i])
     }
 
     if(line.search("%") === -1){
@@ -196,6 +110,40 @@ async function processLine(message, member, thread, collection, changeStream){
         return {embeds:[embed]}
     else
         return {embeds:[embed], components:[components]}
+}
+
+async function processInteraction(line, collection, member, thread, changeStream, embed, tutorial){
+    if(line.search("%" + tutorials[tutorial].TITLE) !== -1){
+        // Update du coté de FRANCE BOT
+        // await upsertRetention(collection, member.id, "likes", true)
+        let isDone = (await getRetention(collection, member.id, tutorials[tutorial].COLLECTION_VALUE_NAME))
+        console.log(isDone)
+        let cancelled = false
+        changeStream.once('change', (next) => {
+            console.log(next)
+            if(next.documentKey._id === member.id && 
+                next.updateDescription.updatedFields[tutorials[tutorial].COLLECTION_VALUE_NAME]){
+                    isDone = true
+            }
+        })
+        let timeout1 = setTimeout(() => {
+            embed.setDescription(tutorials[tutorial].TUTORIAL_FAILED)
+            thread.send({embeds:[embed]})
+        }, 60000); // remettre à 60000
+        let timeout2 = setTimeout(() => {
+            embed.setDescription(tutorials[tutorial].TUTORIAL_SKIPPED)
+            cancelled = true
+        }, 120000); // remettre à 120000
+        
+        while(isDone != true && cancelled != true){
+            await new Promise(r => setTimeout(r, 2000));
+        }
+        
+        clearTimeout(timeout1)
+        clearTimeout(timeout2)
+        if(!cancelled)
+        embed.setDescription(tutorials[tutorial].TUTORIAL_SUCCESS)
+    }
 }
 
 async function verifyEachWeek(client){
